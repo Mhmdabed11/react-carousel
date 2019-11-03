@@ -1,5 +1,8 @@
 .slider {
   overflow: hidden;
+  margin-top: 20%;
+  position: relative;
+  padding: 0 67px;
 }
 .slider-wrapper {
   white-space: nowrap;
@@ -10,11 +13,38 @@
   display: inline-block;
   width: calc(100% / 6);
   text-align: center;
-  height: fit-content;
-  height: 196px;
-  line-height: 196px;
+  // height: fit-content;
+  // height: 196px;
+  // line-height: 196px;
 
   img {
     width: 100%;
+    margin: 4px;
   }
+}
+
+.next,
+.previous {
+  border: none;
+  background-color: rgba(0, 0, 0, 0.5);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.previous {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 67px;
+}
+
+.next {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  height: 100%;
+  width: 67px;
 }
