@@ -1,0 +1,20 @@
+.slider {
+  overflow: hidden;
+}
+.slider-wrapper {
+  white-space: nowrap;
+  display: block;
+  height: auto;
+}
+.slider-item {
+  display: inline-block;
+  width: calc(100% / 6);
+  text-align: center;
+  height: fit-content;
+  height: 196px;
+  line-height: 196px;
+
+  img {
+    width: 100%;
+  }
+}
