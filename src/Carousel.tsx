@@ -143,7 +143,7 @@ export default function Carousel() {
     }
   }, [width, activeSlides]);
 
-  const x = 100;
+  const x = 100 + 100 / activeSlides;
   const styles =
     hasMovedOnce && !isSliding
       ? { transform: `translateX(-${x}%)` }
@@ -154,7 +154,7 @@ export default function Carousel() {
         }
       : !hasMovedOnce && isSliding && direction === 1
       ? {
-          transform: `translateX(-${x}%)`,
+          transform: `translateX(-${100}%)`,
           transition: `all ${TIME}ms ease`
         }
       : isSliding && direction === -1 && slidesToMove !== 0
@@ -164,7 +164,7 @@ export default function Carousel() {
         }
       : isSliding && direction === -1 && slidesToMove === 0
       ? {
-          transform: `translateX(${0}%)`,
+          transform: `translateX(-${100 / activeSlides}%)`,
           transition: `all ${TIME}ms ease`
         }
       : { transform: "translateX(0%)" };
@@ -198,6 +198,7 @@ export default function Carousel() {
         for (let i = 0; i < slidesToShift; i++) {
           tempArray.push(moviesCopy.shift());
         }
+
         moviesCopy = [...moviesCopy, ...tempArray];
         setMovies(moviesCopy);
       }
@@ -208,7 +209,10 @@ export default function Carousel() {
           ...item,
           key: item.title + 20
         }));
-        setMovies(movies => [...movies, ...newMovies]);
+        let YY = [...newMovies];
+        let x = YY.pop();
+        //@ts-ignore
+        setMovies(movies => [x, ...movies, ...YY]);
         setHasMovedOnce(true);
       }
       setDirection(0);
