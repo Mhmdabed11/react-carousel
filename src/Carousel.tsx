@@ -1,5 +1,6 @@
 import React from "react";
 import "./carousel.scss";
+import { relative } from "path";
 const NUM = 6;
 const TIME = 600;
 export default function Carousel() {
@@ -59,7 +60,7 @@ export default function Carousel() {
       key: 6,
       movie:
         "https://occ-0-3409-2773.1.nflxso.net/dnm/api/v6/0DW6CdE4gYtYx8iy3aj8gs9WtXE/AAAABSO0Uahpb8-OKaMrCJ0ByzZjl0smJiIGc3nPCNtQWaV3H29fjwy0IfQ-tAzdpz73Yp6nJ0ivR4t2ngSF8SWtXHz_kDTBKoPA.webp?r=4de",
-      color: "gray"
+      color: "red"
     },
     {
       title: 7,
@@ -119,6 +120,10 @@ export default function Carousel() {
     length = movies.length;
   }
 
+  React.useEffect(() => {
+    console.log("MOVIES ", movies);
+  }, [movies]);
+
   // add event listener to window
   React.useEffect(() => {
     if (window) {
@@ -136,31 +141,30 @@ export default function Carousel() {
     if (width > 1200) {
       if (activeSlides !== NUM) setActiveSlides(NUM);
     }
-  }, [width]);
+  }, [width, activeSlides]);
 
+  const x = 100;
   const styles =
     hasMovedOnce && !isSliding
-      ? { transform: "translateX(-100%)" }
+      ? { transform: `translateX(-${x}%)` }
       : hasMovedOnce && isSliding && direction === 1
       ? {
-          transform: `translateX(-${100 +
-            slidesToMove * (100 / activeSlides)}%)`,
+          transform: `translateX(-${x + slidesToMove * (100 / activeSlides)}%)`,
           transition: `all ${TIME}ms ease`
         }
       : !hasMovedOnce && isSliding && direction === 1
       ? {
-          transform: "translateX(-100%)",
+          transform: `translateX(-${x}%)`,
           transition: `all ${TIME}ms ease`
         }
       : isSliding && direction === -1 && slidesToMove !== 0
       ? {
-          transform: `translateX(-${100 -
-            slidesToMove * (100 / activeSlides)}%)`,
+          transform: `translateX(-${x - slidesToMove * (100 / activeSlides)}%)`,
           transition: `all ${TIME}ms ease`
         }
       : isSliding && direction === -1 && slidesToMove === 0
       ? {
-          transform: `translateX(0%)`,
+          transform: `translateX(${0}%)`,
           transition: `all ${TIME}ms ease`
         }
       : { transform: "translateX(0%)" };
@@ -205,7 +209,6 @@ export default function Carousel() {
           key: item.title + 20
         }));
         setMovies(movies => [...movies, ...newMovies]);
-        console.log([...movies, ...newMovies]);
         setHasMovedOnce(true);
       }
       setDirection(0);
@@ -216,20 +219,18 @@ export default function Carousel() {
     setSliding(true);
     setDirection(-1);
     let slidesToPop = 0;
-    console.log(leftEdgeIndex);
     if (leftEdgeIndex !== 0) {
       if (leftEdgeIndex >= activeSlides) {
         slidesToPop = activeSlides;
         setLeftEdgeIndex(leftEdgeIndex => leftEdgeIndex - activeSlides);
         setSlidesToMove(0);
       } else {
-        console.log("hey boy");
         slidesToPop = leftEdgeIndex;
         setLeftEdgeIndex(0);
         setSlidesToMove(leftEdgeIndex);
       }
     } else {
-      setLeftEdgeIndex(leftEdgeIndex => length - activeSlides);
+      setLeftEdgeIndex(length - activeSlides);
       setSlidesToMove(activeSlides);
       slidesToPop = activeSlides;
     }
@@ -249,20 +250,20 @@ export default function Carousel() {
 
   return (
     <div className="slider">
-      <div ref={sliderRef} className="slider-wrapper" style={styles}>
-        {movies.map((movie, index) => {
-          return (
-            <div
-              key={movie.key}
-              className="slider-item"
-              // style={{ backgroundColor: movie.color }}
-            >
-              {/* {movie.title} */}
-
-              <img src={movie.movie} alt={movie.title.toString()} />
-            </div>
-          );
-        })}
+      <div ref={sliderRef} className="slider-wrapper">
+        <div style={styles}>
+          {movies.map((movie, index) => {
+            return (
+              <div
+                key={movie.key}
+                className="slider-item"
+                style={{ backgroundColor: movie.color }}
+              >
+                {movie.title}
+              </div>
+            );
+          })}
+        </div>
       </div>
       <button
         className="previous"
