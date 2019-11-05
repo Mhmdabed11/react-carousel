@@ -1,18 +1,28 @@
 import React from "react";
 import "./carousel.scss";
-import { relative } from "path";
-const NUM = 6;
-const TIME = 600;
+
+const NUM: number = 6;
+const TIME: number = 600;
+
+type Movie = {
+  color: string | number;
+  key: number | string;
+  movie: string;
+  title: number;
+};
+
 export default function Carousel() {
   const sliderRef = React.useRef(null);
-  const [isSliding, setSliding] = React.useState(false);
-  const [direction, setDirection] = React.useState(0);
-  const [hasMovedOnce, setHasMovedOnce] = React.useState(false);
-  const [activeSlides, setActiveSlides] = React.useState(0);
-  const [width, setWidth] = React.useState(window ? window.innerWidth : 0);
-  const [leftEdgeIndex, setLeftEdgeIndex] = React.useState(0);
-  const [slidesToMove, setSlidesToMove] = React.useState(activeSlides);
-  const [movies, setMovies] = React.useState([
+  const [isSliding, setSliding] = React.useState<boolean>(false);
+  const [direction, setDirection] = React.useState<number>(0);
+  const [hasMovedOnce, setHasMovedOnce] = React.useState<boolean>(false);
+  const [activeSlides, setActiveSlides] = React.useState<number>(0);
+  const [width, setWidth] = React.useState<number>(
+    window ? window.innerWidth : 0
+  );
+  const [leftEdgeIndex, setLeftEdgeIndex] = React.useState<number>(0);
+  const [slidesToMove, setSlidesToMove] = React.useState<number>(activeSlides);
+  const [movies, setMovies] = React.useState<Movie[]>([
     {
       title: 0,
       key: 0,
@@ -61,56 +71,56 @@ export default function Carousel() {
       movie:
         "https://occ-0-3409-2773.1.nflxso.net/dnm/api/v6/0DW6CdE4gYtYx8iy3aj8gs9WtXE/AAAABSO0Uahpb8-OKaMrCJ0ByzZjl0smJiIGc3nPCNtQWaV3H29fjwy0IfQ-tAzdpz73Yp6nJ0ivR4t2ngSF8SWtXHz_kDTBKoPA.webp?r=4de",
       color: "red"
-    },
-    {
-      title: 7,
-      key: 7,
-      movie:
-        "https://occ-0-3409-2773.1.nflxso.net/dnm/api/v6/0DW6CdE4gYtYx8iy3aj8gs9WtXE/AAAABXdkA5mmI9OxER465PCbCmRFVdyxGl3TclzKgZm_6Pn7hyVsy1FvAPtsbPMsoKZ5H56EPsnFZlqmEdXf_rmz98fEvQ6WZhxE.jpg?r=e7b",
-      color: "black"
-    },
-    {
-      title: 8,
-      key: 8,
-      movie:
-        "https://occ-0-3409-2773.1.nflxso.net/dnm/api/v6/0DW6CdE4gYtYx8iy3aj8gs9WtXE/AAAABdUHnWCCn29uk30cE_YipZxY2DU-KsJGJ1PvWpULKDHL0MMdpnlzo-iFlJc-FRGfrwyxLcvNC7YOZGYTtwK8zNRpJ-7_2Wx7.jpg?r=de9",
-      color: "white"
-    },
-    {
-      title: 9,
-      key: 9,
-      movie:
-        "https://occ-0-3409-300.1.nflxso.net/dnm/api/v6/0DW6CdE4gYtYx8iy3aj8gs9WtXE/AAAABf23LNHN5pkUwKm4Y-HVwnHmqlWBZY07m909lmJ81gd6ZRYoD4klGGXpl6oobb0UXQDt2PGKsyDou17mhin13jEPdkXoAIFWj4rNV_JhgksC6QHFr5TNZRwsckIU.jpg?r=978",
-      color: "cyan"
-    },
-    {
-      title: 10,
-      key: 10,
-      movie:
-        "https://occ-0-3409-300.1.nflxso.net/dnm/api/v6/0DW6CdE4gYtYx8iy3aj8gs9WtXE/AAAABewXZBFgqhncFj1bH7-RYmdeq_nDlM_QxK01ZC6qMg8y45vtzrR2KC0jU_VSUZElYnqN6UMHacJZxAbvvujrwGlWQD6bjGFZEITX6bcopOZHMwVKaKq2aop_6Q3-.jpg?r=7f0",
-      color: "#176dff"
-    },
-    {
-      title: 11,
-      key: 11,
-      movie:
-        "https://occ-0-3409-300.1.nflxso.net/dnm/api/v6/0DW6CdE4gYtYx8iy3aj8gs9WtXE/AAAABe7nQ-4uFaozqJT77LMhmej6PcaIPm3K_HNgPZD0b0n9dVz4E61H8cxiRxX6aGEZN7Srqimm1LTX1N7V-jMfCdEs-r3QaIlwqjbhsLY0XVu9V2MtzBDY7adyvXyk.jpg?r=680",
-      color: "#135cdd"
-    },
-    {
-      title: 12,
-      key: 12,
-      movie:
-        "https://occ-0-3409-300.1.nflxso.net/dnm/api/v6/0DW6CdE4gYtYx8iy3aj8gs9WtXE/AAAABTq_xlD7mWNAxPZhErXQ-yvHOtSLy_yZkzM4aGPfadUkBoouXmuxLz2VJaNEQzr9OALFighp_ZZNM72B-KuESfLbotDX1j_ejXcpGhfVQnZ0eWDUEM6cydtOJh70NmBy9Q.webp?r=3db",
-      color: "#efefef"
-    },
-    {
-      title: 13,
-      key: 13,
-      movie:
-        "https://occ-0-3409-300.1.nflxso.net/dnm/api/v6/0DW6CdE4gYtYx8iy3aj8gs9WtXE/AAAABWFE5iihqfc9JBHE0X-KSo581HCrf63U0rTcLj6IkY-HhG6qz7-rBVu1SiGNek1Y0CmbtSxOCu5wwymxgKr4g7IHuTS6pm1MT_zkXz88Os5gzyNzFX75fgpycpy-.jpg?r=0dc",
-      color: "#e5fded"
     }
+    // {
+    //   title: 7,
+    //   key: 7,
+    //   movie:
+    //     "https://occ-0-3409-2773.1.nflxso.net/dnm/api/v6/0DW6CdE4gYtYx8iy3aj8gs9WtXE/AAAABXdkA5mmI9OxER465PCbCmRFVdyxGl3TclzKgZm_6Pn7hyVsy1FvAPtsbPMsoKZ5H56EPsnFZlqmEdXf_rmz98fEvQ6WZhxE.jpg?r=e7b",
+    //   color: "black"
+    // },
+    // {
+    //   title: 8,
+    //   key: 8,
+    //   movie:
+    //     "https://occ-0-3409-2773.1.nflxso.net/dnm/api/v6/0DW6CdE4gYtYx8iy3aj8gs9WtXE/AAAABdUHnWCCn29uk30cE_YipZxY2DU-KsJGJ1PvWpULKDHL0MMdpnlzo-iFlJc-FRGfrwyxLcvNC7YOZGYTtwK8zNRpJ-7_2Wx7.jpg?r=de9",
+    //   color: "white"
+    // },
+    // {
+    //   title: 9,
+    //   key: 9,
+    //   movie:
+    //     "https://occ-0-3409-300.1.nflxso.net/dnm/api/v6/0DW6CdE4gYtYx8iy3aj8gs9WtXE/AAAABf23LNHN5pkUwKm4Y-HVwnHmqlWBZY07m909lmJ81gd6ZRYoD4klGGXpl6oobb0UXQDt2PGKsyDou17mhin13jEPdkXoAIFWj4rNV_JhgksC6QHFr5TNZRwsckIU.jpg?r=978",
+    //   color: "cyan"
+    // },
+    // {
+    //   title: 10,
+    //   key: 10,
+    //   movie:
+    //     "https://occ-0-3409-300.1.nflxso.net/dnm/api/v6/0DW6CdE4gYtYx8iy3aj8gs9WtXE/AAAABewXZBFgqhncFj1bH7-RYmdeq_nDlM_QxK01ZC6qMg8y45vtzrR2KC0jU_VSUZElYnqN6UMHacJZxAbvvujrwGlWQD6bjGFZEITX6bcopOZHMwVKaKq2aop_6Q3-.jpg?r=7f0",
+    //   color: "#176dff"
+    // },
+    // {
+    //   title: 11,
+    //   key: 11,
+    //   movie:
+    //     "https://occ-0-3409-300.1.nflxso.net/dnm/api/v6/0DW6CdE4gYtYx8iy3aj8gs9WtXE/AAAABe7nQ-4uFaozqJT77LMhmej6PcaIPm3K_HNgPZD0b0n9dVz4E61H8cxiRxX6aGEZN7Srqimm1LTX1N7V-jMfCdEs-r3QaIlwqjbhsLY0XVu9V2MtzBDY7adyvXyk.jpg?r=680",
+    //   color: "#135cdd"
+    // },
+    // {
+    //   title: 12,
+    //   key: 12,
+    //   movie:
+    //     "https://occ-0-3409-300.1.nflxso.net/dnm/api/v6/0DW6CdE4gYtYx8iy3aj8gs9WtXE/AAAABTq_xlD7mWNAxPZhErXQ-yvHOtSLy_yZkzM4aGPfadUkBoouXmuxLz2VJaNEQzr9OALFighp_ZZNM72B-KuESfLbotDX1j_ejXcpGhfVQnZ0eWDUEM6cydtOJh70NmBy9Q.webp?r=3db",
+    //   color: "#efefef"
+    // },
+    // {
+    //   title: 13,
+    //   key: 13,
+    //   movie:
+    //     "https://occ-0-3409-300.1.nflxso.net/dnm/api/v6/0DW6CdE4gYtYx8iy3aj8gs9WtXE/AAAABWFE5iihqfc9JBHE0X-KSo581HCrf63U0rTcLj6IkY-HhG6qz7-rBVu1SiGNek1Y0CmbtSxOCu5wwymxgKr4g7IHuTS6pm1MT_zkXz88Os5gzyNzFX75fgpycpy-.jpg?r=0dc",
+    //   color: "#e5fded"
+    // }
   ]);
 
   let length = 0;
@@ -168,12 +178,16 @@ export default function Carousel() {
           transition: `all ${TIME}ms ease`
         }
       : { transform: "translateX(0%)" };
+
+  // handle next click
   const handleNext = () => {
     setSliding(true);
     setDirection(1);
-    let slidesToShift = 0;
+
+    // handle left edge index
+    let slidesToShift: number = 0;
     if (leftEdgeIndex + activeSlides !== length) {
-      let remainingSlides = length - (leftEdgeIndex + activeSlides);
+      let remainingSlides: number = length - (leftEdgeIndex + activeSlides);
       if (remainingSlides < 0) {
         remainingSlides = 0;
       }
@@ -191,12 +205,20 @@ export default function Carousel() {
       setSlidesToMove(activeSlides);
       slidesToShift = activeSlides;
     }
+    // update state after specific time to make slidinjg illusion
     setTimeout(() => {
       if (hasMovedOnce) {
-        let moviesCopy: Array<any> = [...movies];
-        let tempArray = [];
-        for (let i = 0; i < slidesToShift; i++) {
-          tempArray.push(moviesCopy.shift());
+        let moviesCopy: Movie[] = [...movies];
+        let tempArray: Movie[] = [];
+        for (let i: number = 0; i < slidesToShift; i++) {
+          if (
+            moviesCopy &&
+            Array.isArray(moviesCopy) &&
+            moviesCopy.length > 0
+          ) {
+            let movieAtIndexZero: Movie = moviesCopy.shift()!;
+            tempArray.push(movieAtIndexZero);
+          }
         }
 
         moviesCopy = [...moviesCopy, ...tempArray];
@@ -204,15 +226,20 @@ export default function Carousel() {
       }
       setSliding(false);
       if (!hasMovedOnce) {
-        let newMovies = [...movies];
+        let newMovies: Movie[] = [...movies];
         newMovies = newMovies.map(item => ({
           ...item,
           key: item.title + 20
         }));
-        let YY = [...newMovies];
-        let x = YY.pop();
-        //@ts-ignore
-        setMovies(movies => [x, ...movies, ...YY]);
+        let newMoviesCopy: Movie[] = [...newMovies];
+        if (
+          newMoviesCopy &&
+          Array.isArray(newMoviesCopy) &&
+          newMoviesCopy.length > 0
+        ) {
+          let movieAtEndOfArray: Movie = newMoviesCopy.pop()!;
+          setMovies(movies => [movieAtEndOfArray, ...movies, ...newMoviesCopy]);
+        }
         setHasMovedOnce(true);
       }
       setDirection(0);
@@ -222,7 +249,7 @@ export default function Carousel() {
   const handlePrevious = () => {
     setSliding(true);
     setDirection(-1);
-    let slidesToPop = 0;
+    let slidesToPop: number = 0;
     if (leftEdgeIndex !== 0) {
       if (leftEdgeIndex >= activeSlides) {
         slidesToPop = activeSlides;
@@ -240,10 +267,13 @@ export default function Carousel() {
     }
 
     setTimeout(() => {
-      let moviesCopy: Array<any> = [...movies];
-      let tempArray = [];
+      let moviesCopy: Movie[] = [...movies];
+      let tempArray: Movie[] = [];
       for (let i = 0; i < slidesToPop; i++) {
-        tempArray.unshift(moviesCopy.pop());
+        if (moviesCopy && Array.isArray(moviesCopy) && moviesCopy.length > 0) {
+          let movieAtEndOfArray: Movie = moviesCopy.pop()!;
+          tempArray.unshift(movieAtEndOfArray);
+        }
       }
       moviesCopy = [...tempArray, ...moviesCopy];
       setMovies(moviesCopy);
@@ -261,9 +291,10 @@ export default function Carousel() {
               <div
                 key={movie.key}
                 className="slider-item"
-                style={{ backgroundColor: movie.color }}
+                // style={{ backgroundColor: movie.color }}
               >
-                {movie.title}
+                {/* {movie.title} */}
+                <img src={movie.movie} alt={movie.title.toString()} />
               </div>
             );
           })}
