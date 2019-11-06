@@ -4,7 +4,7 @@
   position: relative;
   padding: 0 67px;
   box-sizing: border-box;
-  margin-top: 20%;
+  // margin-top: 20%;
 }
 .slider-wrapper {
   white-space: nowrap;
@@ -13,8 +13,9 @@
 }
 .slider-item {
   display: inline-block;
-  width: calc(100% / 6);
+  width: calc(100% / 5);
   text-align: center;
+  // background-color: red;
   // height: fit-content;
   // height: 196px;
   // line-height: 196px;
