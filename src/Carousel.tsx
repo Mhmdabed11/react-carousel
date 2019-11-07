@@ -1,14 +1,26 @@
 import React from "react";
 import "./carousel.scss";
+const uuidv4 = require("uuid/v4");
 
 const NUM: number = 5;
 const TIME: number = 600;
 
 type Movie = {
-  color: string | number;
   key: number;
   movie: string;
   title: number;
+};
+
+type sliderStyle = {
+  transform: string;
+  transition?: string;
+};
+
+const breakPoints = {
+  "1200": 6,
+  "900": 5,
+  "768": 4,
+  "500": 3
 };
 
 export default function Carousel({ slides }: { slides: any }) {
@@ -16,7 +28,7 @@ export default function Carousel({ slides }: { slides: any }) {
   const [isSliding, setSliding] = React.useState<boolean>(false);
   const [direction, setDirection] = React.useState<number>(0);
   const [hasMovedOnce, setHasMovedOnce] = React.useState<boolean>(false);
-  const [activeSlides, setActiveSlides] = React.useState<number>(0);
+  const [activeSlides, setActiveSlides] = React.useState<number>(6);
   const [width, setWidth] = React.useState<number>(
     window ? window.innerWidth : 0
   );
@@ -24,56 +36,83 @@ export default function Carousel({ slides }: { slides: any }) {
   const [slidesToMove, setSlidesToMove] = React.useState<number>(activeSlides);
   const [movies, setMovies] = React.useState<Movie[]>(slides);
 
-  let length = slides.length;
+  console.log("rendered");
+  // number of slides
+  let length: number = slides.length;
 
-  React.useEffect(() => {
-    console.log("MOVIES ", movies);
-  }, [movies]);
-
-  React.useEffect(() => {
-    if (slides.length <= 2 * activeSlides && length > activeSlides) {
-      let newMovies = [...movies];
+  function debounce(func: any, wait: any, immediate: any) {
+    var timeout: any;
+    return function() {
       //@ts-ignore
-      newMovies = newMovies.map(movie => ({
+      var context: any = this,
+        args = arguments;
+      var later = function() {
+        timeout = null;
+        if (!immediate) func.apply(context, args);
+      };
+      var callNow = immediate && !timeout;
+      clearTimeout(timeout);
+      timeout = setTimeout(later, wait);
+      if (callNow) func.apply(context, args);
+    };
+  }
+  React.useEffect(() => {
+    // check is the number of slides allow sliding
+    // if yes, then copy the number of movies two times
+    if (slides.length <= 2 * activeSlides && length > activeSlides) {
+      console.log("hey");
+      let moviesCopy = [...movies];
+      moviesCopy = moviesCopy.map(movie => ({
         ...movie,
-        key: movie.key + 1000
+        key: uuidv4()
       }));
-      let newMoviesCopy = [...newMovies];
+      let newMoviesCopy = [...moviesCopy];
       newMoviesCopy = newMoviesCopy.map(movie => ({
         ...movie,
-        key: movie.key + 2000
+        key: uuidv4()
       }));
-      setMovies([...movies, ...newMovies, ...newMoviesCopy]);
+      setMovies([...movies, ...moviesCopy, ...newMoviesCopy]);
     }
   }, [slides, activeSlides]);
 
-  // add event listener to window
+  // add event listener to window to save window width
   React.useEffect(() => {
     if (window) {
-      const updateWidth = () => {
+      //@ts-ignore
+      const updateWidth = debounce((): void => {
         setWidth(window.innerWidth);
-      };
+        console.log(window.innerWidth);
+      }, 250);
       window.addEventListener("resize", updateWidth);
 
       return () => window.removeEventListener("resize", updateWidth);
     }
   });
 
-  // set active slidees num
+  // // set active slidees num
   React.useLayoutEffect(() => {
-    if (width > 1200) {
-      if (activeSlides !== NUM) setActiveSlides(NUM);
+    if (width >= 1200) {
+      if (activeSlides !== breakPoints["1200"])
+        setActiveSlides(breakPoints["1200"]);
+    } else if (width >= 900 && width < 1200) {
+      if (activeSlides !== breakPoints["900"])
+        setActiveSlides(breakPoints["900"]);
+    } else if (width >= 768 && width < 900) {
+      if (activeSlides !== breakPoints["768"])
+        setActiveSlides(breakPoints["768"]);
     }
   }, [width, activeSlides]);
 
-  const x = 100 + 100 / activeSlides;
+  // get the percentage the slider should translate
+  const percentageToTranslate: number = 100 + 100 / activeSlides;
 
-  const styles =
+  const styles: sliderStyle =
     hasMovedOnce && !isSliding
-      ? { transform: `translateX(-${x}%)` }
+      ? { transform: `translateX(-${percentageToTranslate}%)` }
       : hasMovedOnce && isSliding && direction === 1
       ? {
-          transform: `translateX(-${x + slidesToMove * (100 / activeSlides)}%)`,
+          transform: `translateX(-${percentageToTranslate +
+            slidesToMove * (100 / activeSlides)}%)`,
           transition: `all ${TIME}ms ease`
         }
       : !hasMovedOnce &&
@@ -96,7 +135,8 @@ export default function Carousel({ slides }: { slides: any }) {
       : //BACKWARDS
       isSliding && direction === -1 && slidesToMove !== 0
       ? {
-          transform: `translateX(-${x - slidesToMove * (100 / activeSlides)}%)`,
+          transform: `translateX(-${percentageToTranslate -
+            slidesToMove * (100 / activeSlides)}%)`,
           transition: `all ${TIME}ms ease`
         }
       : isSliding && direction === -1 && slidesToMove === 0
@@ -110,7 +150,6 @@ export default function Carousel({ slides }: { slides: any }) {
   const handleNext = () => {
     setSliding(true);
     setDirection(1);
-
     // handle left edge index
     let slidesToShift: number = 0;
     if (leftEdgeIndex + activeSlides !== length) {
@@ -132,7 +171,6 @@ export default function Carousel({ slides }: { slides: any }) {
       setSlidesToMove(activeSlides);
       slidesToShift = activeSlides;
     }
-    console.log("SLIDES TO MOVE", slidesToShift);
     // update state after specific time to make slidinjg illusion
     setTimeout(() => {
       if (hasMovedOnce) {
@@ -148,7 +186,6 @@ export default function Carousel({ slides }: { slides: any }) {
             tempArray.push(movieAtIndexZero);
           }
         }
-
         moviesCopy = [...moviesCopy, ...tempArray];
         setMovies(moviesCopy);
       }
@@ -157,7 +194,7 @@ export default function Carousel({ slides }: { slides: any }) {
           let newMovies: Movie[] = [...movies];
           newMovies = newMovies.map(item => ({
             ...item,
-            key: item.title + 20
+            key: uuidv4()
           }));
           let newMoviesCopy: Movie[] = [...newMovies];
           if (
@@ -173,13 +210,15 @@ export default function Carousel({ slides }: { slides: any }) {
             ]);
           }
         } else {
-          let moviesCopy = [...movies];
-          let tempArray = [];
+          let moviesCopy: Movie[] = [...movies];
+          let tempArray: Movie[] = [];
           console.log(slidesToShift);
           for (let i = 0; i < 2 * slidesToShift - 1; i++) {
-            tempArray.push(moviesCopy.shift());
+            if (Array.isArray(moviesCopy) && moviesCopy.length > 0) {
+              let movieAtIndexZero: Movie = moviesCopy.shift()!;
+              tempArray.push(movieAtIndexZero);
+            }
           }
-          //@ts-ignore
           setMovies([...moviesCopy, ...tempArray]);
         }
         setHasMovedOnce(true);
@@ -234,9 +273,8 @@ export default function Carousel({ slides }: { slides: any }) {
               <div
                 key={movie.key}
                 className="slider-item"
-                // style={{ backgroundColor: movie.color }}
+                style={{ width: `${100 / activeSlides}%` }}
               >
-                {/* {movie.title} */}
                 <img src={movie.movie} alt={movie.title.toString()} />
               </div>
             );

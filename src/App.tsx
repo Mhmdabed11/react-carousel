@@ -107,7 +107,7 @@ function App() {
           // }
         ]}
       />
-      <div>
+      {/* <div>
         <Carousel
           slides={[
             {
@@ -161,7 +161,7 @@ function App() {
             }
           ]}
         />
-      </div>
+      </div> */}
     </div>
   );
 }
