@@ -161,7 +161,11 @@ export default function Carousel({ slides }: { slides: any }) {
     setLeftEdgeIndex(0);
     setSlidesToMove(activeslidesTemp);
     setHasMovedOnce(false);
-    if (slides.length <= 2 * activeslidesTemp && length > activeslidesTemp) {
+    if (
+      slides.length <= 2 * activeslidesTemp &&
+      length > activeslidesTemp &&
+      width > 450
+    ) {
       let moviesCopy = [...slides];
       moviesCopy = moviesCopy.map(movie => ({
         ...movie,

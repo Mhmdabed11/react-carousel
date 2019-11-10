@@ -22,17 +22,13 @@
   overflow: hidden;
   transition: all 400ms ease;
   img {
-    position: absolute;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    right: 0;
+    display: block;
     width: 100%;
   }
 }
 .slider-item-wrapper {
-  padding: 28.125% 0;
-  height: 0;
+  // padding: 28.125% 0;
+  // height: 0;
   position: relative;
   width: 100%;
   overflow: hidden;
@@ -64,16 +60,18 @@
   bottom: 0;
 }
 
-.slider-wrapper:hover .slider-item {
-  transform: translateX(-25%);
-}
-.slider-item:hover ~ .slider-item {
-  transform: translateX(25%) !important;
-}
+@media (hover: hover) {
+  .slider-wrapper:hover .slider-item {
+    transform: translateX(-25%);
+  }
+  .slider-item:hover ~ .slider-item {
+    transform: translateX(25%) !important;
+  }
 
-.slider-item:hover {
-  transform: scale(1.5) !important;
-  z-index: 2;
+  .slider-item:hover {
+    transform: scale(1.5) !important;
+    z-index: 2;
+  }
 }
 
 @media only screen and (max-width: 1400px) {
