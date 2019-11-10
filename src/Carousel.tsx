@@ -1,175 +1,80 @@
 import React from "react";
 import "./carousel.scss";
+const uuidv4 = require("uuid/v4");
 
-const NUM: number = 6;
+const NUM: number = 5;
 const TIME: number = 600;
 
 type Movie = {
-  color: string | number;
-  key: number | string;
+  key: number;
   movie: string;
   title: number;
 };
 
-export default function Carousel() {
+type sliderStyle = {
+  transform: string;
+  transition?: string;
+};
+
+const breakPoints = {
+  SIX_ACTIVE: 6,
+  FIVE_ACTIVE: 5,
+  FOUR_ACTVE: 4,
+  THREE_ACIVE: 3,
+  TWO_ACTIVE: 2,
+  ONE_ACTIVE: 1
+};
+
+export default function Carousel({ slides }: { slides: any }) {
   const sliderRef = React.useRef(null);
   const [isSliding, setSliding] = React.useState<boolean>(false);
   const [direction, setDirection] = React.useState<number>(0);
   const [hasMovedOnce, setHasMovedOnce] = React.useState<boolean>(false);
-  const [activeSlides, setActiveSlides] = React.useState<number>(0);
+  const [activeSlides, setActiveSlides] = React.useState<number>(6);
   const [width, setWidth] = React.useState<number>(
     window ? window.innerWidth : 0
   );
   const [leftEdgeIndex, setLeftEdgeIndex] = React.useState<number>(0);
   const [slidesToMove, setSlidesToMove] = React.useState<number>(activeSlides);
-  const [movies, setMovies] = React.useState<Movie[]>([
-    {
-      title: 0,
-      key: 0,
-      movie:
-        "https://occ-0-3409-2773.1.nflxso.net/dnm/api/v6/0DW6CdE4gYtYx8iy3aj8gs9WtXE/AAAABaxvzq-QrYi7gL4wOyOBc63ao-5441L6LgSYJ5KfsOAedVyIDHPgkNXyU8xuKD6lRdr7CrN2Eg9WtfBW6yRCHDpdBWjuFbEQ.webp?r=88d",
-      color: "red"
-    },
-    {
-      title: 1,
-      key: 1,
-      movie:
-        "https://occ-0-3409-2773.1.nflxso.net/dnm/api/v6/0DW6CdE4gYtYx8iy3aj8gs9WtXE/AAAABd0Ng-XYm6lVJoQkjZv1fRFK-eEpRGrYZwqv6g4R4mMbaRntHFu5D_iVxuZEiFs74hKt4RTzYqRv8vgsrBqcqZEpSrGDTBV-.webp?r=e8f",
-      color: "green"
-    },
-    {
-      title: 2,
-      key: 2,
-      movie:
-        "https://occ-0-3409-2773.1.nflxso.net/dnm/api/v6/0DW6CdE4gYtYx8iy3aj8gs9WtXE/AAAABQTuEMRqug-Pb0-w5xE3z0gFDSOpKVcVWNu-qwqwa0TfN0zffHhr2b2NBZdnK8t3EEI8M7ESi4dBQ1SWBVADjNFzAQ_8TiyH.webp?r=72f",
-      color: "yellow"
-    },
-    {
-      title: 3,
-      key: 3,
-      movie:
-        "https://occ-0-3409-2773.1.nflxso.net/dnm/api/v6/0DW6CdE4gYtYx8iy3aj8gs9WtXE/AAAABYHPj_fHm-MQx-fxFppjfWz8UJY0WwurrKOoV2Q4GJ2oKYWgaqZoVb-HxDyXdX0eJU81Xv2CS_KeLsdpG2wENCvbPEQRPT50MpeCJjKbJIYEtTlKgVY3L8SzCy5BbYYwXg.jpg?r=6b9",
-      color: "blue"
-    },
-    {
-      title: 4,
-      key: 4,
-      movie:
-        "https://occ-0-3409-2773.1.nflxso.net/dnm/api/v6/0DW6CdE4gYtYx8iy3aj8gs9WtXE/AAAABTHSLjT6Oqkl4TS2OSEuBhIfW6xB5-pyEOlIzoeNtuL_OLB_32ogRbGlNMKQ-y6kbzm6_QiMl7_h3kqQgBlo6UWkrWJ33G0s.jpg?r=854",
-      color: "orange"
-    },
-    {
-      title: 5,
-      key: 5,
-      movie:
-        "https://occ-0-3409-2773.1.nflxso.net/dnm/api/v6/0DW6CdE4gYtYx8iy3aj8gs9WtXE/AAAABQBZ-Hs2sbqvNzoMK_NNzhLV29bfUGZ3zfa0VMRZRoWC-tzDy_Zr3Pa9EEkcdEnvOy0XDj_UvepaT5P22XnNscJ_gyLKziXB.webp?r=4fb",
-      color: "purple"
-    },
-    {
-      title: 6,
-      key: 6,
-      movie:
-        "https://occ-0-3409-2773.1.nflxso.net/dnm/api/v6/0DW6CdE4gYtYx8iy3aj8gs9WtXE/AAAABSO0Uahpb8-OKaMrCJ0ByzZjl0smJiIGc3nPCNtQWaV3H29fjwy0IfQ-tAzdpz73Yp6nJ0ivR4t2ngSF8SWtXHz_kDTBKoPA.webp?r=4de",
-      color: "red"
-    }
-    // {
-    //   title: 7,
-    //   key: 7,
-    //   movie:
-    //     "https://occ-0-3409-2773.1.nflxso.net/dnm/api/v6/0DW6CdE4gYtYx8iy3aj8gs9WtXE/AAAABXdkA5mmI9OxER465PCbCmRFVdyxGl3TclzKgZm_6Pn7hyVsy1FvAPtsbPMsoKZ5H56EPsnFZlqmEdXf_rmz98fEvQ6WZhxE.jpg?r=e7b",
-    //   color: "black"
-    // },
-    // {
-    //   title: 8,
-    //   key: 8,
-    //   movie:
-    //     "https://occ-0-3409-2773.1.nflxso.net/dnm/api/v6/0DW6CdE4gYtYx8iy3aj8gs9WtXE/AAAABdUHnWCCn29uk30cE_YipZxY2DU-KsJGJ1PvWpULKDHL0MMdpnlzo-iFlJc-FRGfrwyxLcvNC7YOZGYTtwK8zNRpJ-7_2Wx7.jpg?r=de9",
-    //   color: "white"
-    // },
-    // {
-    //   title: 9,
-    //   key: 9,
-    //   movie:
-    //     "https://occ-0-3409-300.1.nflxso.net/dnm/api/v6/0DW6CdE4gYtYx8iy3aj8gs9WtXE/AAAABf23LNHN5pkUwKm4Y-HVwnHmqlWBZY07m909lmJ81gd6ZRYoD4klGGXpl6oobb0UXQDt2PGKsyDou17mhin13jEPdkXoAIFWj4rNV_JhgksC6QHFr5TNZRwsckIU.jpg?r=978",
-    //   color: "cyan"
-    // },
-    // {
-    //   title: 10,
-    //   key: 10,
-    //   movie:
-    //     "https://occ-0-3409-300.1.nflxso.net/dnm/api/v6/0DW6CdE4gYtYx8iy3aj8gs9WtXE/AAAABewXZBFgqhncFj1bH7-RYmdeq_nDlM_QxK01ZC6qMg8y45vtzrR2KC0jU_VSUZElYnqN6UMHacJZxAbvvujrwGlWQD6bjGFZEITX6bcopOZHMwVKaKq2aop_6Q3-.jpg?r=7f0",
-    //   color: "#176dff"
-    // },
-    // {
-    //   title: 11,
-    //   key: 11,
-    //   movie:
-    //     "https://occ-0-3409-300.1.nflxso.net/dnm/api/v6/0DW6CdE4gYtYx8iy3aj8gs9WtXE/AAAABe7nQ-4uFaozqJT77LMhmej6PcaIPm3K_HNgPZD0b0n9dVz4E61H8cxiRxX6aGEZN7Srqimm1LTX1N7V-jMfCdEs-r3QaIlwqjbhsLY0XVu9V2MtzBDY7adyvXyk.jpg?r=680",
-    //   color: "#135cdd"
-    // },
-    // {
-    //   title: 12,
-    //   key: 12,
-    //   movie:
-    //     "https://occ-0-3409-300.1.nflxso.net/dnm/api/v6/0DW6CdE4gYtYx8iy3aj8gs9WtXE/AAAABTq_xlD7mWNAxPZhErXQ-yvHOtSLy_yZkzM4aGPfadUkBoouXmuxLz2VJaNEQzr9OALFighp_ZZNM72B-KuESfLbotDX1j_ejXcpGhfVQnZ0eWDUEM6cydtOJh70NmBy9Q.webp?r=3db",
-    //   color: "#efefef"
-    // },
-    // {
-    //   title: 13,
-    //   key: 13,
-    //   movie:
-    //     "https://occ-0-3409-300.1.nflxso.net/dnm/api/v6/0DW6CdE4gYtYx8iy3aj8gs9WtXE/AAAABWFE5iihqfc9JBHE0X-KSo581HCrf63U0rTcLj6IkY-HhG6qz7-rBVu1SiGNek1Y0CmbtSxOCu5wwymxgKr4g7IHuTS6pm1MT_zkXz88Os5gzyNzFX75fgpycpy-.jpg?r=0dc",
-    //   color: "#e5fded"
-    // }
-  ]);
+  const [movies, setMovies] = React.useState<Movie[]>(slides);
 
-  let length = 0;
-  if (hasMovedOnce) {
-    length = movies.length / 2;
-  } else {
-    length = movies.length;
-  }
+  // number of slides
+  let length: number = slides.length;
 
-  React.useEffect(() => {
-    console.log("MOVIES ", movies);
-  }, [movies]);
+  // get the percentage the slider should translate
+  const percentageToTranslate: number = 100 + 100 / activeSlides;
 
-  // add event listener to window
-  React.useEffect(() => {
-    if (window) {
-      const updateWidth = () => {
-        setWidth(window.innerWidth);
-      };
-      window.addEventListener("resize", updateWidth);
-
-      return () => window.removeEventListener("resize", updateWidth);
-    }
-  });
-
-  // set active slidees num
-  React.useLayoutEffect(() => {
-    if (width > 1200) {
-      if (activeSlides !== NUM) setActiveSlides(NUM);
-    }
-  }, [width, activeSlides]);
-
-  const x = 100 + 100 / activeSlides;
-  const styles =
+  var styles: sliderStyle =
     hasMovedOnce && !isSliding
-      ? { transform: `translateX(-${x}%)` }
+      ? { transform: `translateX(-${percentageToTranslate}%)` }
       : hasMovedOnce && isSliding && direction === 1
       ? {
-          transform: `translateX(-${x + slidesToMove * (100 / activeSlides)}%)`,
+          transform: `translateX(-${percentageToTranslate +
+            slidesToMove * (100 / activeSlides)}%)`,
           transition: `all ${TIME}ms ease`
         }
-      : !hasMovedOnce && isSliding && direction === 1
+      : !hasMovedOnce &&
+        isSliding &&
+        direction === 1 &&
+        length <= 2 * activeSlides &&
+        slidesToMove < activeSlides
+      ? {
+          transform: `translateX(-${(slidesToMove * 100) / activeSlides}%)`,
+          transition: `all ${TIME}ms ease`
+        }
+      : !hasMovedOnce &&
+        isSliding &&
+        direction === 1 &&
+        length > 2 * activeSlides
       ? {
           transform: `translateX(-${100}%)`,
           transition: `all ${TIME}ms ease`
         }
-      : isSliding && direction === -1 && slidesToMove !== 0
+      : //BACKWARDS
+      isSliding && direction === -1 && slidesToMove !== 0
       ? {
-          transform: `translateX(-${x - slidesToMove * (100 / activeSlides)}%)`,
+          transform: `translateX(-${percentageToTranslate -
+            slidesToMove * (100 / activeSlides)}%)`,
           transition: `all ${TIME}ms ease`
         }
       : isSliding && direction === -1 && slidesToMove === 0
@@ -179,11 +84,104 @@ export default function Carousel() {
         }
       : { transform: "translateX(0%)" };
 
+  function debounce(func: any, wait: any, immediate?: any) {
+    var timeout: any;
+    return function() {
+      //@ts-ignore
+      var context: any = this,
+        args = arguments;
+      var later = function() {
+        timeout = null;
+        if (!immediate) func.apply(context, args);
+      };
+      var callNow = immediate && !timeout;
+      clearTimeout(timeout);
+      timeout = setTimeout(later, wait);
+      if (callNow) func.apply(context, args);
+    };
+  }
+  React.useEffect(() => {
+    // check is the number of slides allow sliding
+    // if yes, then copy the number of movies two times
+    if (slides.length <= 2 * activeSlides && length > activeSlides) {
+      let moviesCopy = [...slides];
+      moviesCopy = moviesCopy.map(movie => ({
+        ...movie,
+        key: uuidv4()
+      }));
+      let newMoviesCopy = [...moviesCopy];
+      newMoviesCopy = newMoviesCopy.map(movie => ({
+        ...movie,
+        key: uuidv4()
+      }));
+      setMovies([...slides, ...moviesCopy, ...newMoviesCopy]);
+    }
+  }, [slides, activeSlides]);
+
+  // add event listener to window to save window width
+  React.useEffect(() => {
+    if (window) {
+      const updateWidth = debounce((): void => {
+        setWidth(window.innerWidth);
+      }, 100);
+      window.addEventListener("resize", updateWidth);
+
+      return () => window.removeEventListener("resize", updateWidth);
+    }
+  });
+
+  // // set active slidees num
+  React.useLayoutEffect(() => {
+    let activeslidesTemp: number = 0;
+    if (width >= 1400) {
+      if (activeSlides !== breakPoints.SIX_ACTIVE)
+        setActiveSlides(breakPoints.SIX_ACTIVE);
+      activeslidesTemp = breakPoints.SIX_ACTIVE;
+    } else if (width >= 1100 && width < 1400) {
+      if (activeSlides !== breakPoints.FIVE_ACTIVE)
+        setActiveSlides(breakPoints.FIVE_ACTIVE);
+      activeslidesTemp = breakPoints.FIVE_ACTIVE;
+    } else if (width >= 800 && width < 1100) {
+      if (activeSlides !== breakPoints.FOUR_ACTVE)
+        setActiveSlides(breakPoints.FOUR_ACTVE);
+      activeslidesTemp = breakPoints.FOUR_ACTVE;
+    } else if (width >= 500 && width < 800) {
+      if (activeSlides !== breakPoints.THREE_ACIVE)
+        setActiveSlides(breakPoints.THREE_ACIVE);
+      activeslidesTemp = breakPoints.THREE_ACIVE;
+    } else if (width >= 350 && width < 500) {
+      if (activeSlides !== breakPoints.TWO_ACTIVE)
+        setActiveSlides(breakPoints.TWO_ACTIVE);
+      activeslidesTemp = breakPoints.TWO_ACTIVE;
+    } else if (width < 350) {
+      if (activeSlides !== breakPoints.ONE_ACTIVE)
+        setActiveSlides(breakPoints.ONE_ACTIVE);
+      activeslidesTemp = breakPoints.ONE_ACTIVE;
+    }
+    setLeftEdgeIndex(0);
+    setSlidesToMove(activeslidesTemp);
+    setHasMovedOnce(false);
+    if (slides.length <= 2 * activeslidesTemp && length > activeslidesTemp) {
+      let moviesCopy = [...slides];
+      moviesCopy = moviesCopy.map(movie => ({
+        ...movie,
+        key: uuidv4()
+      }));
+      let newMoviesCopy = [...moviesCopy];
+      newMoviesCopy = newMoviesCopy.map(movie => ({
+        ...movie,
+        key: uuidv4()
+      }));
+      setMovies([...slides, ...moviesCopy, ...newMoviesCopy]);
+    } else {
+      setMovies(slides);
+    }
+  }, [width, activeSlides]);
+
   // handle next click
   const handleNext = () => {
     setSliding(true);
     setDirection(1);
-
     // handle left edge index
     let slidesToShift: number = 0;
     if (leftEdgeIndex + activeSlides !== length) {
@@ -220,31 +218,50 @@ export default function Carousel() {
             tempArray.push(movieAtIndexZero);
           }
         }
-
         moviesCopy = [...moviesCopy, ...tempArray];
         setMovies(moviesCopy);
       }
-      setSliding(false);
       if (!hasMovedOnce) {
-        let newMovies: Movie[] = [...movies];
-        newMovies = newMovies.map(item => ({
-          ...item,
-          key: item.title + 20
-        }));
-        let newMoviesCopy: Movie[] = [...newMovies];
-        if (
-          newMoviesCopy &&
-          Array.isArray(newMoviesCopy) &&
-          newMoviesCopy.length > 0
-        ) {
-          let movieAtEndOfArray: Movie = newMoviesCopy.pop()!;
-          setMovies(movies => [movieAtEndOfArray, ...movies, ...newMoviesCopy]);
+        if (length > 2 * activeSlides) {
+          let newMovies: Movie[] = [...movies];
+          newMovies = newMovies.map(item => ({
+            ...item,
+            key: uuidv4()
+          }));
+          let newMoviesCopy: Movie[] = [...newMovies];
+          if (
+            newMoviesCopy &&
+            Array.isArray(newMoviesCopy) &&
+            newMoviesCopy.length > 0
+          ) {
+            let movieAtEndOfArray: Movie = newMoviesCopy.pop()!;
+            setMovies(movies => [
+              movieAtEndOfArray,
+              ...movies,
+              ...newMoviesCopy
+            ]);
+          }
+        } else {
+          let moviesCopy: Movie[] = [...movies];
+          let tempArray: Movie[] = [];
+          for (let i = 0; i < 2 * slidesToShift - 1; i++) {
+            if (Array.isArray(moviesCopy) && moviesCopy.length > 0) {
+              let movieAtIndexZero: Movie = moviesCopy.shift()!;
+              tempArray.push(movieAtIndexZero);
+            }
+          }
+          setMovies([...moviesCopy, ...tempArray]);
         }
         setHasMovedOnce(true);
       }
+      setSliding(false);
       setDirection(0);
     }, TIME);
   };
+
+  React.useEffect(() => {
+    console.log("Left Edge Index", leftEdgeIndex);
+  }, [leftEdgeIndex]);
 
   const handlePrevious = () => {
     setSliding(true);
@@ -287,16 +304,59 @@ export default function Carousel() {
       <div ref={sliderRef} className="slider-wrapper">
         <div style={styles}>
           {movies.map((movie, index) => {
-            return (
-              <div
-                key={movie.key}
-                className="slider-item"
-                // style={{ backgroundColor: movie.color }}
-              >
-                {/* {movie.title} */}
-                <img src={movie.movie} alt={movie.title.toString()} />
-              </div>
-            );
+            if (index === leftEdgeIndex + activeSlides - 1 && !hasMovedOnce) {
+              return (
+                <div
+                  key={movie.key}
+                  className={`slider-item slider-item-active-last`}
+                >
+                  <div className={`slider-item-wrapper`}>
+                    <img src={movie.movie} alt={movie.title.toString()} />
+                  </div>
+                </div>
+              );
+            }
+            if (index === leftEdgeIndex && !hasMovedOnce) {
+              return (
+                <div
+                  key={movie.key}
+                  className={`slider-item slider-item-active-first`}
+                >
+                  <div className={`slider-item-wrapper`}>
+                    <img src={movie.movie} alt={movie.title.toString()} />
+                  </div>
+                </div>
+              );
+            } else if (index === activeSlides + 1 && hasMovedOnce) {
+              return (
+                <div
+                  key={movie.key}
+                  className={`slider-item slider-item-active-first`}
+                >
+                  <div className={`slider-item-wrapper`}>
+                    <img src={movie.movie} alt={movie.title.toString()} />
+                  </div>
+                </div>
+              );
+            } else if (index === 2 * activeSlides && hasMovedOnce) {
+              return (
+                <div
+                  key={movie.key}
+                  className={`slider-item slider-item-active-last`}
+                >
+                  <div className={`slider-item-wrapper`}>
+                    <img src={movie.movie} alt={movie.title.toString()} />
+                  </div>
+                </div>
+              );
+            } else
+              return (
+                <div key={movie.key} className={`slider-item`}>
+                  <div className={`slider-item-wrapper`}>
+                    <img src={movie.movie} alt={movie.title.toString()} />
+                  </div>
+                </div>
+              );
           })}
         </div>
       </div>
