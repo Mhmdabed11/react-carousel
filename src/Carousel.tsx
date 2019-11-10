@@ -17,10 +17,12 @@ type sliderStyle = {
 };
 
 const breakPoints = {
-  "1200": 6,
-  "900": 5,
-  "768": 4,
-  "500": 3
+  SIX_ACTIVE: 6,
+  FIVE_ACTIVE: 5,
+  FOUR_ACTVE: 4,
+  THREE_ACIVE: 3,
+  TWO_ACTIVE: 2,
+  ONE_ACTIVE: 1
 };
 
 export default function Carousel({ slides }: { slides: any }) {
@@ -36,77 +38,13 @@ export default function Carousel({ slides }: { slides: any }) {
   const [slidesToMove, setSlidesToMove] = React.useState<number>(activeSlides);
   const [movies, setMovies] = React.useState<Movie[]>(slides);
 
-  console.log("rendered");
   // number of slides
   let length: number = slides.length;
-
-  function debounce(func: any, wait: any, immediate: any) {
-    var timeout: any;
-    return function() {
-      //@ts-ignore
-      var context: any = this,
-        args = arguments;
-      var later = function() {
-        timeout = null;
-        if (!immediate) func.apply(context, args);
-      };
-      var callNow = immediate && !timeout;
-      clearTimeout(timeout);
-      timeout = setTimeout(later, wait);
-      if (callNow) func.apply(context, args);
-    };
-  }
-  React.useEffect(() => {
-    // check is the number of slides allow sliding
-    // if yes, then copy the number of movies two times
-    if (slides.length <= 2 * activeSlides && length > activeSlides) {
-      console.log("hey");
-      let moviesCopy = [...movies];
-      moviesCopy = moviesCopy.map(movie => ({
-        ...movie,
-        key: uuidv4()
-      }));
-      let newMoviesCopy = [...moviesCopy];
-      newMoviesCopy = newMoviesCopy.map(movie => ({
-        ...movie,
-        key: uuidv4()
-      }));
-      setMovies([...movies, ...moviesCopy, ...newMoviesCopy]);
-    }
-  }, [slides, activeSlides]);
-
-  // add event listener to window to save window width
-  React.useEffect(() => {
-    if (window) {
-      //@ts-ignore
-      const updateWidth = debounce((): void => {
-        setWidth(window.innerWidth);
-        console.log(window.innerWidth);
-      }, 250);
-      window.addEventListener("resize", updateWidth);
-
-      return () => window.removeEventListener("resize", updateWidth);
-    }
-  });
-
-  // // set active slidees num
-  React.useLayoutEffect(() => {
-    if (width >= 1200) {
-      if (activeSlides !== breakPoints["1200"])
-        setActiveSlides(breakPoints["1200"]);
-    } else if (width >= 900 && width < 1200) {
-      if (activeSlides !== breakPoints["900"])
-        setActiveSlides(breakPoints["900"]);
-    } else if (width >= 768 && width < 900) {
-      if (activeSlides !== breakPoints["768"])
-        setActiveSlides(breakPoints["768"]);
-    }
-  }, [width, activeSlides]);
 
   // get the percentage the slider should translate
   const percentageToTranslate: number = 100 + 100 / activeSlides;
 
-  const styles: sliderStyle =
+  var styles: sliderStyle =
     hasMovedOnce && !isSliding
       ? { transform: `translateX(-${percentageToTranslate}%)` }
       : hasMovedOnce && isSliding && direction === 1
@@ -145,6 +83,100 @@ export default function Carousel({ slides }: { slides: any }) {
           transition: `all ${TIME}ms ease`
         }
       : { transform: "translateX(0%)" };
+
+  function debounce(func: any, wait: any, immediate?: any) {
+    var timeout: any;
+    return function() {
+      //@ts-ignore
+      var context: any = this,
+        args = arguments;
+      var later = function() {
+        timeout = null;
+        if (!immediate) func.apply(context, args);
+      };
+      var callNow = immediate && !timeout;
+      clearTimeout(timeout);
+      timeout = setTimeout(later, wait);
+      if (callNow) func.apply(context, args);
+    };
+  }
+  React.useEffect(() => {
+    // check is the number of slides allow sliding
+    // if yes, then copy the number of movies two times
+    if (slides.length <= 2 * activeSlides && length > activeSlides) {
+      let moviesCopy = [...slides];
+      moviesCopy = moviesCopy.map(movie => ({
+        ...movie,
+        key: uuidv4()
+      }));
+      let newMoviesCopy = [...moviesCopy];
+      newMoviesCopy = newMoviesCopy.map(movie => ({
+        ...movie,
+        key: uuidv4()
+      }));
+      setMovies([...slides, ...moviesCopy, ...newMoviesCopy]);
+    }
+  }, [slides, activeSlides]);
+
+  // add event listener to window to save window width
+  React.useEffect(() => {
+    if (window) {
+      const updateWidth = debounce((): void => {
+        setWidth(window.innerWidth);
+      }, 100);
+      window.addEventListener("resize", updateWidth);
+
+      return () => window.removeEventListener("resize", updateWidth);
+    }
+  });
+
+  // // set active slidees num
+  React.useLayoutEffect(() => {
+    let activeslidesTemp: number = 0;
+    if (width >= 1400) {
+      if (activeSlides !== breakPoints.SIX_ACTIVE)
+        setActiveSlides(breakPoints.SIX_ACTIVE);
+      activeslidesTemp = breakPoints.SIX_ACTIVE;
+    } else if (width >= 1100 && width < 1400) {
+      if (activeSlides !== breakPoints.FIVE_ACTIVE)
+        setActiveSlides(breakPoints.FIVE_ACTIVE);
+      activeslidesTemp = breakPoints.FIVE_ACTIVE;
+    } else if (width >= 800 && width < 1100) {
+      if (activeSlides !== breakPoints.FOUR_ACTVE)
+        setActiveSlides(breakPoints.FOUR_ACTVE);
+      activeslidesTemp = breakPoints.FOUR_ACTVE;
+    } else if (width >= 500 && width < 800) {
+      if (activeSlides !== breakPoints.THREE_ACIVE)
+        setActiveSlides(breakPoints.THREE_ACIVE);
+      activeslidesTemp = breakPoints.THREE_ACIVE;
+    } else if (width >= 350 && width < 500) {
+      if (activeSlides !== breakPoints.TWO_ACTIVE)
+        setActiveSlides(breakPoints.TWO_ACTIVE);
+      activeslidesTemp = breakPoints.TWO_ACTIVE;
+    } else if (width < 350) {
+      if (activeSlides !== breakPoints.ONE_ACTIVE)
+        setActiveSlides(breakPoints.ONE_ACTIVE);
+      activeslidesTemp = breakPoints.ONE_ACTIVE;
+    }
+    setLeftEdgeIndex(0);
+    setSlidesToMove(activeslidesTemp);
+    setHasMovedOnce(false);
+    if (slides.length <= 2 * activeslidesTemp && length > activeslidesTemp) {
+      let moviesCopy = [...slides];
+      moviesCopy = moviesCopy.map(movie => ({
+        ...movie,
+        key: uuidv4()
+      }));
+      let newMoviesCopy = [...moviesCopy];
+      newMoviesCopy = newMoviesCopy.map(movie => ({
+        ...movie,
+        key: uuidv4()
+      }));
+      setMovies([...slides, ...moviesCopy, ...newMoviesCopy]);
+    } else {
+      setMovies(slides);
+    }
+  }, [width, activeSlides]);
 
   // handle next click
   const handleNext = () => {
@@ -212,7 +244,6 @@ export default function Carousel({ slides }: { slides: any }) {
         } else {
           let moviesCopy: Movie[] = [...movies];
           let tempArray: Movie[] = [];
-          console.log(slidesToShift);
           for (let i = 0; i < 2 * slidesToShift - 1; i++) {
             if (Array.isArray(moviesCopy) && moviesCopy.length > 0) {
               let movieAtIndexZero: Movie = moviesCopy.shift()!;
@@ -227,6 +258,10 @@ export default function Carousel({ slides }: { slides: any }) {
       setDirection(0);
     }, TIME);
   };
+
+  React.useEffect(() => {
+    console.log("Left Edge Index", leftEdgeIndex);
+  }, [leftEdgeIndex]);
 
   const handlePrevious = () => {
     setSliding(true);
@@ -269,15 +304,59 @@ export default function Carousel({ slides }: { slides: any }) {
       <div ref={sliderRef} className="slider-wrapper">
         <div style={styles}>
           {movies.map((movie, index) => {
-            return (
-              <div
-                key={movie.key}
-                className="slider-item"
-                style={{ width: `${100 / activeSlides}%` }}
-              >
-                <img src={movie.movie} alt={movie.title.toString()} />
-              </div>
-            );
+            if (index === leftEdgeIndex + activeSlides - 1 && !hasMovedOnce) {
+              return (
+                <div
+                  key={movie.key}
+                  className={`slider-item slider-item-active-last`}
+                >
+                  <div className={`slider-item-wrapper`}>
+                    <img src={movie.movie} alt={movie.title.toString()} />
+                  </div>
+                </div>
+              );
+            }
+            if (index === leftEdgeIndex && !hasMovedOnce) {
+              return (
+                <div
+                  key={movie.key}
+                  className={`slider-item slider-item-active-first`}
+                >
+                  <div className={`slider-item-wrapper`}>
+                    <img src={movie.movie} alt={movie.title.toString()} />
+                  </div>
+                </div>
+              );
+            } else if (index === activeSlides + 1 && hasMovedOnce) {
+              return (
+                <div
+                  key={movie.key}
+                  className={`slider-item slider-item-active-first`}
+                >
+                  <div className={`slider-item-wrapper`}>
+                    <img src={movie.movie} alt={movie.title.toString()} />
+                  </div>
+                </div>
+              );
+            } else if (index === 2 * activeSlides && hasMovedOnce) {
+              return (
+                <div
+                  key={movie.key}
+                  className={`slider-item slider-item-active-last`}
+                >
+                  <div className={`slider-item-wrapper`}>
+                    <img src={movie.movie} alt={movie.title.toString()} />
+                  </div>
+                </div>
+              );
+            } else
+              return (
+                <div key={movie.key} className={`slider-item`}>
+                  <div className={`slider-item-wrapper`}>
+                    <img src={movie.movie} alt={movie.title.toString()} />
+                  </div>
+                </div>
+              );
           })}
         </div>
       </div>
